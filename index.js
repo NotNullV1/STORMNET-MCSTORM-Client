@@ -129,24 +129,31 @@ console.commandLog = function(text) {
   process.stdout.write(prompt.currentPrompt.activePrompt.opt.prefix + " " + prompt.currentPrompt.activePrompt.opt.message.bold + " " + prompt.currentPrompt.activePrompt.rl.line + "\n\x1b[A\x1b[" + totalLength + "C");
 };
 
-function addPotentialNode(node) {
-  const data = fs.readFileSync('nodes.txt', 'utf8');
-  const hosts = data.split("\n");
-  const hostExists = hosts.find((host) => host === `${node.host}:${node.port}`);
-
-  if(!knownNodes.find(o => o.host === node.host) && !hostExists) {
-    testNode(node)
-      .then(success => {
-        knownNodes.push(node);
-
-        const list = knownNodes.map(n => `${n.host}:${n.port}`);
-        const listToSave = list.join("\n");
-        fs.writeFileSync('nodes.txt', listToSave);
-      })
-      .catch(e => {});
-  }
+function saveNodeList() {
+  var list = [];
+  knownNodes.forEach(n=>{
+    list.push(n.host+":"+n.port);
+  })
+  var listToSave = list.join("\n");
+  fs.writeFileSync('nodes.txt', listToSave);
 }
 
+function removeDuplicates(arr, prop) {
+  return arr.filter((obj, index, self) => {
+    return self.findIndex((t) => t[prop] === obj[prop]) === index;
+  });
+}
+
+function addPotentialNode(node) {
+  if(!knownNodes.find(o=> o.host === node.host)) {
+  testNode(node).then(success=>{
+      knownNodes.push(node);
+      knownNodes = removeDuplicates(knownNodes, 'host')
+      saveNodeList();
+    }).catch(e=>{})
+  }
+  
+}
 
 function sha256(input) {
   const hash = crypto.createHash('sha256');
@@ -1300,10 +1307,12 @@ function setupTOR(platform) {
   switch(platform) {
   case "win32":
     if(fs.existsSync("tor.exe")) {
+      var torMessages = true;
       var tor = spawn("tor.exe", []);
       tor.stdout.on('data', data => {
-        process.stdout.write(data.toString())
+        if(torMessages) process.stdout.write(data.toString())
         if(data.toString().includes("Bootstrapped 100%")) {
+          torMessages = false;
           connectNodes(true)
           initEncryption("Welcome back! Before you can begin, please enter your password for decryption.");
         }
@@ -1351,14 +1360,19 @@ function setupTOR(platform) {
     
     break;
   case "linux":
-    var tor = spawn("tor", ['--version']);
-    tor.stdout.on('data', data => {
-      process.stdout.write(data.toString())
-      if(data.toString().includes("Tor is running")) {
-        connectNodes(true)
-        initEncryption("Welcome back! Before you can begin, please enter your password for decryption.");
-      }
+    try {
+      var tor = spawn("tor", ['--version']);
+      tor.stdout.on('data', data => {
+        process.stdout.write(data.toString())
+        if(data.toString().includes("Tor is running")) {
+          connectNodes(true)
+          initEncryption("Welcome back! Before you can begin, please enter your password for decryption.");
+        }
+      })
+    } catch (e=>{
+      console.log("Tor not installed.".red)
     })
+    
     break;
   default:
     console.log("TOR unsupportes platform".red)
@@ -1460,12 +1474,15 @@ function connectNode(i, tor = false) {
 }
 
 function connectNodes(tor = false) {
+  knownNodes = removeDuplicates(knownNodes, 'host');
+  console.log(knownNodes)
+  saveNodeList();
   var stopConnect = false;
   var countConnect = 2;
   while(!stopConnect) {
     countConnect++;
     if(Math.random()*10>7) stopConnect = true;
-  }  
+  } 
 
   if(knownNodes.length<countConnect) {
     countConnect=knownNodes.length
