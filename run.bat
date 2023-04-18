@@ -21,7 +21,7 @@ if exist node_modules\inquirer\ (
 	if exist node-v18.16.0-win-x64\ (
 		"node-v18.16.0-win-x64/node" --no-deprecation index.js
 	) else (
-		npm start
+		node --no-deprecation index.js
 	)
 ) else (
 	REM if modules not installed, install them and then start client either using local node or installed node
@@ -30,7 +30,7 @@ if exist node_modules\inquirer\ (
 		"node-v18.16.0-win-x64/node" --no-deprecation index.js
 	) else (
 		npm i
-		npm start
+		node --no-deprecation index.js
 	)
 )
 
