@@ -19,6 +19,8 @@ Additionally, Cloudflare provides SSL certificates to enable secure connections 
 
 ![Legend](image/legend.png)
 
+
+
 Unencrypted communications are particularly vulnerable to Man-in-the-Middle (MITM) attacks, which can compromise the privacy and security of the data being transmitted. A Man-in-the-Middle attack is a type of cyber attack in which an unauthorized third party, such as hackers or FBI, intercepts and potentially alters the communication between two parties, usually without their knowledge. The attacker positions themselves between the victim (client) and the intended recipient (server), effectively becoming a "middleman" in the communication process.
 
 In Cloudflare's Flexible SSL mode, data is only encrypted between the client and Cloudflare's servers. The communication between Cloudflare and the origin server remains unencrypted, leaving the transmitted data exposed to logging and manipulation. This lack of end-to-end encryption can create security vulnerabilities and undermine the privacy of users. Not only can the stressor itself view the unencrypted data transmitted between the client and the origin server, but other intermediaries, such as the stressors webserver's hosting, can also potentially see and log all activity directly linked to IP addresses leading to breaches in privacy and potential arrests of the stressor's users.
@@ -34,3 +36,10 @@ Apart from unencrypted communication, there are other security issues that can a
 We introduce a new groundbreaking technology designed to comprehensively address these challenges, providing a robust and holistic solution for securing online communications and preserving user privacy. Our novel approach combines advanced cryptography, decentralization, and anonymity techniques, which work together to create a secure and private environment for users, completely removes the risk of seizure of domain names (because it does not use any domain names) and significantly reducing the risk of seizure of servers, identity discovery, and unauthorized access to sensitive information.
 
 ![MCSTORM using STORMNET](image/STORMNET-mcstorm.png)
+
+![Legend](image/legend.png)
+
+
+
+## New techniques
+
