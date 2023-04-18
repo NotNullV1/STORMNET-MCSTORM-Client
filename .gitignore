@@ -1,0 +1,8 @@
+node_modules/
+chatHistories/
+private_key.pem
+public_key.pem
+username.txt
+contype.txt
+contacts.json
+package-lock.json
