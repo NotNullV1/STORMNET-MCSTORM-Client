@@ -69,7 +69,16 @@ Clients share the IP addresses of open nodes with each other randomly. When a cl
 
 STORMNET implements a Proof of Work (PoW) mechanism to prevent spam and denial-of-service attacks. Each client must perform a PoW task and include the result in their messages. This ensures that clients spend a certain amount of computational resources before sending messages, limiting the rate at which they can send messages and reducing the risk of network congestion. This is particularly important for the peer discovery process as if an attacker would flood the network with a single IP address, all clients would try to test the connection to this IP, which could result in a denial of service attack as the tested IP would be flooded with the test connections.
 
+### Conclusion
+
+STORMNET offers a robust, anonymous, and secure communication network that stands up to the challenges of censorship, surveillance, and disruption by the FBI. By employing a unique architecture and advanced cryptography, the system ensures the privacy and security of its users. This design choice makes it resistant to both centralized control and targeted attacks. As pressure from law enforcement agencies continues to evolve and new threats emerge, STORMNET serves as an innovative solution that prioritizes the protection of its users' privacy and the integrity of their communications.
 
 
 
+## Dear stressor website owners and C2 operators!
 
+We invite you all to join STORMNET and encourage your users to connect through our secure and anonymous network. By joining STORMNET and promoting its use among your users, you'll be part of a growing community committed to protecting online privacy and freedom. Additionally, we are calling on dedicated individuals to contribute by running open nodes, which play a crucial role in maintaining and strengthening the STORMNET infrastructure. Running an open node is a simple and affordable process, requiring only a small server with an open TCP port. By hosting an open node, you'll contribute to a decentralized network that protects the privacy and security of its users. Open node operators are the backbone of STORMNET, ensuring the resilience, stability, and scalability of the network. Let's work together to build a safer and more private world where stressor owners and their users do not need to worry about being arrested or their electronics seized!
+
+
+
+**Open node software:** https://github.com/NotNullV1/STORMNET-open-node
