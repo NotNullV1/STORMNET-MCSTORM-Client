@@ -130,20 +130,23 @@ console.commandLog = function(text) {
 };
 
 function addPotentialNode(node) {
-  if(!knownNodes.find(o=> o.host === node.host)) {
-  testNode(node).then(success=>{
-    
-      knownNodes.push(node);
-      var list = [];
-      knownNodes.forEach(n=>{
-        list.push(n.host+":"+n.port);
+  const data = fs.readFileSync('nodes.txt', 'utf8');
+  const hosts = data.split("\n");
+  const hostExists = hosts.find((host) => host === `${node.host}:${node.port}`);
+
+  if(!knownNodes.find(o => o.host === node.host) && !hostExists) {
+    testNode(node)
+      .then(success => {
+        knownNodes.push(node);
+
+        const list = knownNodes.map(n => `${n.host}:${n.port}`);
+        const listToSave = list.join("\n");
+        fs.writeFileSync('nodes.txt', listToSave);
       })
-      var listToSave = list.join("\n");
-      fs.writeFileSync('nodes.txt', listToSave);
-    }).catch(e=>{})
+      .catch(e => {});
   }
-  
 }
+
 
 function sha256(input) {
   const hash = crypto.createHash('sha256');
