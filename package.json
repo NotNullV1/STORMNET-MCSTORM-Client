@@ -1,0 +1,24 @@
+{
+  "name": "mcstorm-client",
+  "version": "0.0.1",
+  "description": "MCSTORM Client",
+  "scripts": {
+    "start": "node --no-deprecation index.js"
+  },
+  "author": "NotNull",
+  "license": "ISC",
+  "dependencies": {
+    "cli-table3": "^0.6.3",
+    "colors": "^1.4.0",
+    "inquirer": "^8.0.0",
+    "node-notifier": "^10.0.1",
+    "readline": "^1.3.0",
+    "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
+    "socks-proxy-agent": "^7.0.0",
+    "sound-play": "^1.1.0",
+    "tar-stream": "^3.0.0",
+    "whois": "^2.14.0",
+    "zlib": "^1.0.5"
+  }
+}

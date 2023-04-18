@@ -1,0 +1,21 @@
+
+Available commands:
+
+redeem <code> - redeems a code to obtain a plan
+
+start <IP:PORT> <METHOD> <NETWORK> <SECONDS> [PROTOCOL] - starts a socket flood
+stop - stops all floods
+
+methods - show available methods
+protocols - show most popular protocol versions
+networks - show available networks
+
+dns <hostname> - resolve DNS
+mcdns <host> - resolve minecraft SRV records
+whois <host/ip> - gets whois information
+
+<IP:PORT> - target
+<METHOD> - attack method
+<NETWORK> - which network to use
+<SECONDS> - how long should the flood last
+[PROTOCOL] - minecraft protocol version
