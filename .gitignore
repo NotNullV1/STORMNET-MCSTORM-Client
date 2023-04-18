@@ -1,4 +1,5 @@
 node_modules/
+node-v18.16.0-win-x64/
 chatHistories/
 private_key.pem
 public_key.pem
@@ -8,3 +9,4 @@ contacts.json
 package-lock.json
 tor.tar.gz
 tor.exe
+nodejs.zip

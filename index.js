@@ -1369,9 +1369,9 @@ function setupTOR(platform) {
           initEncryption("Welcome back! Before you can begin, please enter your password for decryption.");
         }
       })
-    } catch (e=>{
+    } catch (e) {
       console.log("Tor not installed.".red)
-    })
+    }
     
     break;
   default:
