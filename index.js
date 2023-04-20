@@ -16,6 +16,15 @@ const whois = require('whois')
 const dns = require('dns');
 
 var lastNotification = 0;
+
+var incomingMessageLimits = {};
+var outgoingMessageLimits = [
+  {timespan: 10,   max: 3,   counter: 0, counterStart: 0},
+  {timespan: 60,   max: 15,  counter: 0, counterStart: 0},
+  {timespan: 600,  max: 80,  counter: 0, counterStart: 0},
+  {timespan: 3600, max: 300, counter: 0, counterStart: 0},
+]
+
 var connected = 0;
 var lastConnTry = 0;
 var connType;
@@ -99,15 +108,15 @@ inquirer.createPromptModule = function(opt) {
   };
 
   promptModule.restoreDefaultPrompts = function() {
-    this.registerPrompt('list', require('./node_modules/inquirer/lib/prompts/list'));
-    this.registerPrompt('input', require('./node_modules/inquirer/lib/prompts/input'));
-    this.registerPrompt('number', require('./node_modules/inquirer/lib/prompts/number'));
-    this.registerPrompt('confirm', require('./node_modules/inquirer/lib/prompts/confirm'));
-    this.registerPrompt('rawlist', require('./node_modules/inquirer/lib/prompts/rawlist'));
-    this.registerPrompt('expand', require('./node_modules/inquirer/lib/prompts/expand'));
+    this.registerPrompt('list',     require('./node_modules/inquirer/lib/prompts/list'));
+    this.registerPrompt('input',    require('./node_modules/inquirer/lib/prompts/input'));
+    this.registerPrompt('number',   require('./node_modules/inquirer/lib/prompts/number'));
+    this.registerPrompt('confirm',  require('./node_modules/inquirer/lib/prompts/confirm'));
+    this.registerPrompt('rawlist',  require('./node_modules/inquirer/lib/prompts/rawlist'));
+    this.registerPrompt('expand',   require('./node_modules/inquirer/lib/prompts/expand'));
     this.registerPrompt('checkbox', require('./node_modules/inquirer/lib/prompts/checkbox'));
     this.registerPrompt('password', require('./node_modules/inquirer/lib/prompts/password'));
-    this.registerPrompt('editor', require('./node_modules/inquirer/lib/prompts/editor'));
+    this.registerPrompt('editor',   require('./node_modules/inquirer/lib/prompts/editor'));
   };
 
   promptModule.restoreDefaultPrompts();
@@ -129,6 +138,42 @@ console.commandLog = function(text) {
   process.stdout.write(prompt.currentPrompt.activePrompt.opt.prefix + " " + prompt.currentPrompt.activePrompt.opt.message.bold + " " + prompt.currentPrompt.activePrompt.rl.line + "\n\x1b[A\x1b[" + totalLength + "C");
 };
 
+function limitOutgoingMessages() {
+  var currentTime = new Date().getTime();
+  var block = false;
+  outgoingMessageLimits.forEach((limit,i,o) => {
+    if(limit.counter == 0) limit.counterStart = currentTime;
+    if(limit.counterStart + limit.timespan*1000 < currentTime) {
+      o[i].counterStart = currentTime;
+      o[i].counter = 0;
+    }
+    if(o[i].counter >= limit.max) block = true;
+    o[i].counter++;
+  })
+  return block;
+}
+
+function limitIncomingMessages(sender) {
+  sender = sender.toString();
+  var currentTime = new Date().getTime();
+  var block = false;
+  if(!Object.keys(incomingMessageLimits).includes(sender)) {
+    incomingMessageLimits[sender] = [
+      {timespan: 10,   max: 5,   counter: 0, counterStart: 0},
+      {timespan: 60,   max: 18,  counter: 0, counterStart: 0},
+      {timespan: 600,  max: 90,  counter: 0, counterStart: 0},
+      {timespan: 3600, max: 330, counter: 0, counterStart: 0},
+    ]
+  }
+  incomingMessageLimits[sender].forEach((limit,i,o) => {
+    if(limit.counter == 0) limit.counterStart = currentTime;
+    if(limit.counterStart + limit.timespan*1000 < currentTime) o[i].counterStart = currentTime;
+    if(o[i].counter >= limit.max) block = true;
+    o[i].counter++;
+  })
+  return block;
+}
+
 function saveNodeList() {
   var list = [];
   knownNodes.forEach(n=>{
@@ -146,7 +191,7 @@ function removeDuplicates(arr, prop) {
 
 function addPotentialNode(node) {
   if(!knownNodes.find(o=> o.host === node.host)) {
-  testNode(node).then(success=>{
+    testNode(node).then(success=>{
       knownNodes.push(node);
       knownNodes = removeDuplicates(knownNodes, 'host')
       saveNodeList();
@@ -598,6 +643,9 @@ function decryptMessage(message) {
     var decryptedMessage = decryptData(decryptedKey, message.encryptedMessage);
     var parsedMessage = JSON.parse(decryptedMessage.toString())
     if(parsedMessage.token!=undefined) {
+      
+      if(limitIncomingMessages(message.publicKey)) return;
+
       parsedMessage.token = getUserToken(message.publicKey);
       decryptedMessage = JSON.stringify(parsedMessage)
       if (!fs.existsSync("./chatHistories/community")) {
@@ -797,6 +845,18 @@ function processCommunityMessage(message) {
   if (message == "exit") return false
   if (message == "token") {
     console.log("Your user token: " + getUserToken(keys.public))
+    return true;
+  }
+  if (message == "") {
+    console.log("Message was not send: message is empty".red)
+    return true;
+  }
+  if (message.length > 256) {
+    console.log("Message was not send: message too long".red)
+    return true;
+  }
+  if(limitOutgoingMessages()) {
+    console.log("Message was not send: ratelimited".red)
     return true;
   }
   var messageToSend = JSON.stringify({
