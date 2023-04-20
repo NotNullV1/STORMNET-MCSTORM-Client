@@ -167,7 +167,10 @@ function limitIncomingMessages(sender) {
   }
   incomingMessageLimits[sender].forEach((limit,i,o) => {
     if(limit.counter == 0) limit.counterStart = currentTime;
-    if(limit.counterStart + limit.timespan*1000 < currentTime) o[i].counterStart = currentTime;
+    if(limit.counterStart + limit.timespan*1000 < currentTime) {
+      o[i].counterStart = currentTime;
+      o[i].counter = 0;
+    }
     if(o[i].counter >= limit.max) block = true;
     o[i].counter++;
   })
@@ -643,7 +646,7 @@ function decryptMessage(message) {
     var decryptedMessage = decryptData(decryptedKey, message.encryptedMessage);
     var parsedMessage = JSON.parse(decryptedMessage.toString())
     if(parsedMessage.token!=undefined) {
-      
+
       if(limitIncomingMessages(message.publicKey)) return;
 
       parsedMessage.token = getUserToken(message.publicKey);
