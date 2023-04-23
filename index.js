@@ -867,18 +867,18 @@ async function processCommand(command) {
   return true;
 }
 
-function processDirectMessage(message, recipientKey) {
+async function processDirectMessage(message, recipientKey) {
   if (message == "exit") return false
   var messageToSend = JSON.stringify({
     message: message,
     username: username,
     time: Date.now()
   })
-  sendDirectMessage(messageToSend, recipientKey);
+  await sendDirectMessage(messageToSend, recipientKey);
   return true;
 }
 
-function processCommunityMessage(message) {
+async function processCommunityMessage(message) {
   if (message == "exit") return false
   if (message == "token") {
     console.log("Your user token: " + getUserToken(keys.public))
@@ -901,7 +901,7 @@ function processCommunityMessage(message) {
     username: username,
     token: getUserToken(keys.public)
   })
-  sendCommunityMessage(messageToSend);
+  await sendCommunityMessage(messageToSend);
   return true;
 }
 
@@ -1099,8 +1099,8 @@ function openCommunityChat(showHelp = false) {
       message: '>',
       prefix: '['+getUserToken(keys.public).slice(0,8)+'...] '+username
     }])
-    .then((answers) => {
-      if (processCommunityMessage(answers.message)) {
+    .then(async (answers) => {
+      if (await processCommunityMessage(answers.message)) {
         openCommunityChat();
       } else {
         prompt.currentPrompt = null;
@@ -1209,8 +1209,8 @@ function openDM(key, showHelp = false) {
       name: 'directMessage',
       message: '>',
     }])
-    .then((answers) => {
-      if (processDirectMessage(answers.directMessage, key)) {
+    .then(async (answers) => {
+      if (await processDirectMessage(answers.directMessage, key)) {
         openDM(key)
       } else {
         prompt.currentPrompt = null;
