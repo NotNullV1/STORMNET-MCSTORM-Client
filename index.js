@@ -822,7 +822,7 @@ function runDNSMC(parts) {
   
 }
 
-function processCommand(command) {
+async function processCommand(command) {
   history.push(command)
   historyIndex = history.length;
   commandParts = command.split(" ");
@@ -856,7 +856,7 @@ function processCommand(command) {
     case "stop":
     case "start":
     case "redeem":
-      sendCommand(commandParts);
+      await sendCommand(commandParts);
       break;
     case "addnode":
       addNode(commandParts);
@@ -1050,8 +1050,8 @@ function openConsole(showHelp = false) {
       name: 'command',
       message: '>',
     }])
-    .then((answers) => {
-      if (processCommand(answers.command)) {
+    .then(async (answers) => {
+      if (await processCommand(answers.command)) {
         openConsole();
       } else {
         prompt.currentPrompt = null;
