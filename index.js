@@ -775,12 +775,12 @@ async function sendCommand(args) {
   commandQueue.push(message);
 }
 
-function sendDirectMessage(message, recipientKey) {
+async function sendDirectMessage(message, recipientKey) {
   var localId = generateMessageId();
   fs.writeFileSync("./chatHistories/" + getUserToken(Buffer.from(recipientKey, 'hex')) + "/messages/" + localId + ".json", JSON.stringify(encryptStoredMessage(message, keys.pass)));
   fs.appendFileSync("./chatHistories/" + getUserToken(Buffer.from(recipientKey, 'hex')) + "/history", localId + "\n")
   process.stdout.write("Generating payload...")
-  var message = encryptDirectMessage(message, recipientKey);
+  var message = await encryptDirectMessage(message, recipientKey);
   process.stdout.write("\r\x1b[0K");
   commandQueue.push(message);
 }
