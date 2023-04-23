@@ -1208,6 +1208,7 @@ function openDM(key, showHelp = false) {
       type: 'input',
       name: 'directMessage',
       message: '>',
+      prefix: '[DM]'.green+' ['+userToken.slice(0,8)+'...] '+username
     }])
     .then(async (answers) => {
       if (await processDirectMessage(answers.directMessage, key)) {
