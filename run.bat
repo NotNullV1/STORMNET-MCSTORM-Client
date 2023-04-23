@@ -19,18 +19,18 @@ REM check for any module used by the client
 if exist node_modules\inquirer\ (
 	REM if modules installed, start client either using local node or installed node
 	if exist node-v18.16.0-win-x64\ (
-		"node-v18.16.0-win-x64/node" --no-deprecation index.js
+		"node-v18.16.0-win-x64/node" --no-deprecation --no-warnings index.js
 	) else (
-		node --no-deprecation index.js
+		node --no-deprecation --no-warnings index.js
 	)
 ) else (
 	REM if modules not installed, install them and then start client either using local node or installed node
 	if exist node-v18.16.0-win-x64\ (
 		"node-v18.16.0-win-x64/npm" i
-		"node-v18.16.0-win-x64/node" --no-deprecation index.js
+		"node-v18.16.0-win-x64/node" --no-deprecation --no-warnings index.js
 	) else (
 		npm i
-		node --no-deprecation index.js
+		node --no-deprecation --no-warnings index.js
 	)
 )
 

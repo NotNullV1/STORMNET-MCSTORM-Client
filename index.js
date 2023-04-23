@@ -1,10 +1,10 @@
-const {io} = require("socket.io-client");
+const { io } = require("socket.io-client");
 const { SocksProxyAgent } = require('socks-proxy-agent')
-var {spawn} = require('child_process');
+const { spawn } = require('child_process');
 const fs = require('fs');
 const https = require('https');
 const tar = require('tar-stream');
-const zlib = require('zlib');
+const zlib = require('node:zlib');
 const crypto = require('crypto');
 const colors = require('colors');
 const inquirer = require('inquirer');
@@ -14,6 +14,7 @@ const notifier = require('node-notifier');
 const readline = require('readline');
 const whois = require('whois')
 const dns = require('dns');
+const { Worker } = require('node:worker_threads');
 
 var lastNotification = 0;
 
@@ -209,15 +210,24 @@ function sha256(input) {
   return hash.digest('hex');
 }
 
-function proofOfWork(string) {
-  var hash = '';
-  var count = 0;
-  while (!hash.startsWith("0000")) {
-    count++;
-    const final = string+count;
-    hash = sha256(final)
-  }
-  return {hash: hash, pow: count}
+function proofOfWork(string, difficulty) {
+  return new Promise((resolve,reject)=>{
+    var workers = [];
+    for (var i = 0; i < require('os').cpus().length; i++) {
+      const workerData = {string: string, difficulty: difficulty};
+      const w = new Worker('./pow.js', { workerData });
+      workers.push(w)
+      w.setMaxListeners(512);
+      w.on('message', (code) => {
+        var hash = sha256(string+code);
+        resolve({hash: hash, pow: code});
+        workers.forEach(worker=>{
+          worker.unref()
+          worker.terminate()
+        })
+      })
+    }
+  })
 }
 
 function testNode(node) {
@@ -296,10 +306,15 @@ async function createEncryption(message) {
             publicKey,
             privateKey
           } = await generateRSAKeyPair(answers.password1);
-          console.log("Saving...");
+          console.log("The key is now being verified. This can take anywhere from a few seconds to over a minute, depending on your processor power. Please stand by...".brightCyan);
+          var {hash, pow} = await proofOfWork(publicKey, 6);
           keys.pass = answers.password1;
+          console.log("Saving...")
           fs.writeFileSync('public_key.pem', publicKey);
           fs.writeFileSync('private_key.pem', privateKey);
+          fs.writeFileSync('public_key_pow.txt', pow+":"+hash);
+          keys.keyPow = pow;
+          keys.keyHash = hash;
           const privateKeyObject = crypto.createPrivateKey({
             key: privateKey,
             format: 'pem',
@@ -377,7 +392,6 @@ async function initEncryption(message) {
       message: 'Enter decryption password:'
     }])
     .then(async (answers) => {
-      console.log("Decrypting...");
       try {
         const privateKey = crypto.createPrivateKey({
           key: encryptedPrivateKeyPem,
@@ -391,6 +405,17 @@ async function initEncryption(message) {
 
         loadContacts()
         
+        if (!fs.existsSync("public_key_pow.txt")) {
+          console.log("Your key is now being verified. This can take anywhere from a few seconds to over a minute, depending on your processor power. Please stand by...".brightCyan);
+          var {hash, pow} = await proofOfWork(keys.public.toString(), 6);
+          fs.writeFileSync('public_key_pow.txt', pow+":"+hash);
+          keys.keyPow = pow;
+          keys.keyHash = hash;
+        } else {
+          var keyPowFile = fs.readFileSync("public_key_pow.txt").toString().split(":");
+          keys.keyPow = parseInt(keyPowFile[0]);
+          keys.keyHash = keyPowFile[1];
+        }
         if (!fs.existsSync("username.txt")) {
           createUsername("Choose a username so people can see your name when you send them a message.");
           return;
@@ -486,7 +511,7 @@ function decryptData(fullkey, data) {
   return decryptedData;
 }
 
-function encryptMessage(message, useMaster) {
+async function encryptMessage(message, useMaster) {
   var encryptedMessage = encryptData(message);
   var encryptedKey = crypto.privateEncrypt(keys.private, encryptedMessage.key);
   if (useMaster) encryptedKey = crypto.publicEncrypt(keys.master, encryptedKey);
@@ -496,9 +521,12 @@ function encryptMessage(message, useMaster) {
     encryptedKey: encryptedKey,
     publicKey: keys.public
   }
-  var {hash, pow} = proofOfWork(JSON.stringify(encrypted));
+  var {hash, pow} = await proofOfWork(JSON.stringify(encrypted), 4);
   encrypted.hash = hash;
   encrypted.pow = pow;
+  encrypted.keyPow = keys.keyPow;
+  encrypted.keyHash = keys.keyHash;
+
   return encrypted;
 }
 
@@ -517,7 +545,7 @@ function verifySignature(message, signature, publicKey) {
   return isVerified;
 }
 
-function encryptDirectMessage(message, recipientKey) {
+async function encryptDirectMessage(message, recipientKey) {
   var sign = signMessage(message).toString('hex');
   var messageToEncrypt = {message: message, signature: sign}
   var encryptedMessage = encryptData(JSON.stringify(messageToEncrypt));
@@ -528,9 +556,11 @@ function encryptDirectMessage(message, recipientKey) {
     encryptedKey: encryptedKey,
     publicKey: keys.public
   }
-  var {hash, pow} = proofOfWork(JSON.stringify(encrypted));
+  var {hash, pow} = await proofOfWork(JSON.stringify(encrypted), 4);
   encrypted.hash = hash;
   encrypted.pow = pow;
+  encrypted.keyPow = keys.keyPow;
+  encrypted.keyHash = keys.keyHash;
   return encrypted;
 }
 
@@ -733,14 +763,15 @@ function generateMessageId() {
   return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 }
 
-function sendCommand(args) {
+async function sendCommand(args) {
   if(connected==0) {
     console.log("You are not connected to any nodes. Please try again in a few seconds or verify content of nodes.txt".red)
     return;
   }
   process.stdout.write("Generating payload...")
-  var message = encryptMessage(JSON.stringify(args), true);
+  var message = await encryptMessage(JSON.stringify(args), true);
   process.stdout.write("\r\x1b[0K");
+
   commandQueue.push(message);
 }
 
@@ -754,12 +785,12 @@ function sendDirectMessage(message, recipientKey) {
   commandQueue.push(message);
 }
 
-function sendCommunityMessage(message) {
+async function sendCommunityMessage(message) {
   var localId = generateMessageId();
   fs.writeFileSync("./chatHistories/community/messages/" + localId + ".json", JSON.stringify(encryptStoredMessage(message, keys.pass)));
   fs.appendFileSync("./chatHistories/community/history", localId + "\n")
   process.stdout.write("Generating payload...")
-  var message = encryptMessage(message, false);
+  var message = await encryptMessage(message, false);
   process.stdout.write("\r\x1b[0K");
   commandQueue.push(message);
 }
@@ -798,6 +829,9 @@ function processCommand(command) {
   switch (commandParts[0]) {
     case "exit":
       return false;
+    case "clear":
+      displayBanner();
+      break;
     case "help":
       showHelp();
       break;
@@ -1466,26 +1500,34 @@ function removeNode(node) {
   fs.writeFileSync('nodes.txt', listToSave);
 }
 
+function updateNode(node) {
+  knownNodes.forEach((n,i,o)=>{
+    if(n.host==node.host) o[i]=node;
+  })
+}
+
 function connectNode(i, tor = false) {
   if(i>=knownNodes.length) return;
+  var connectedNode = knownNodes[i];
   lastConnTry++;
   var socket;
   if(tor) {
     const Agent = new SocksProxyAgent('socks5://127.0.0.1:9050')
-    socket = io("wss://" + knownNodes[i].host + ":" + knownNodes[i].port, {
+    socket = io("wss://" + connectedNode.host + ":" + connectedNode.port, {
       rejectUnauthorized: false,
       agent: Agent,
       timeout: 60000
     });
   } else {
-    socket = io("wss://" + knownNodes[i].host + ":" + knownNodes[i].port, {
+    socket = io("wss://" + connectedNode.host + ":" + connectedNode.port, {
       rejectUnauthorized: false,
       timeout: 10000
     });
   }
   
   socket.on("connect", () => {
-    knownNodes[i].online = true;
+    connectedNode.online = true;
+    updateNode(connectedNode);
     connected++;
     process.stdout.write(String.fromCharCode(27) + "]0;" + "MCSTORM | Connected: "+connected + String.fromCharCode(7));
   });
@@ -1497,32 +1539,55 @@ function connectNode(i, tor = false) {
 
   socket.on("connect_error", (e) => {
 
-    if(!knownNodes[i].online) {
+    if(!connectedNode.online) {
       socket.disconnect();
-      removeNode(knownNodes[i])
+      removeNode(connectedNode)
     }
     
     connectNode(lastConnTry, tor)
   });
 
   socket.on("redirectEncryptedMessage", message => {
-    if(message.pow==undefined||message.hash==undefined||message.messageId==undefined) {
+    if(message.pow==undefined||message.keyPow==undefined||message.hash==undefined||message.keyHash==undefined||message.messageId==undefined) {
+      // missing data
       socket.disconnect();
-      removeNode(knownNodes[i])
+      removeNode(connectedNode);
       return;
     }
+    
+    if(!message.hash.startsWith("0000")) {
+      // invalid message pow
+      socket.disconnect();
+      removeNode(connectedNode);
+      return;
+    }
+    if(!message.keyHash.startsWith("000000")) {
+      // invalid key pow
+      socket.disconnect();
+      removeNode(connectedNode);
+      return;
+    }
+
     var toVerify = {
       messageId: message.messageId,
       encryptedMessage: message.encryptedMessage,
       encryptedKey: message.encryptedKey,
       publicKey: message.publicKey
     }
-    if(sha256(JSON.stringify(toVerify)+message.pow)!=message.hash||!message.hash.startsWith("0000")) {
-      // invalid proof of work
+
+    if(sha256(JSON.stringify(toVerify)+message.pow)!=message.hash) {
+      // invalid hash
       socket.disconnect();
-      removeNode(knownNodes[i])
+      removeNode(connectedNode);
       return;
     }
+    if(sha256(message.publicKey.toString()+message.keyPow)!=message.keyHash) {
+      // invalid key hash
+      socket.disconnect();
+      removeNode(connectedNode);
+      return;
+    }
+
     if (receivedMessages.includes(message.messageId)) return;
     receivedMessages.push(message.messageId);
     message.from = socket.id;
@@ -1567,12 +1632,12 @@ function randomTimeout(max) {
 }
 
 
-setInterval(() => {
+setInterval(async () => {
   if (keys.private == null) return
   var currentCommand = commandQueue.shift();
   if (currentCommand == undefined) {
     if(Math.random()*10>9) {
-      currentCommand = encryptMessage(JSON.stringify({knownNode:knownNodes[Math.floor(Math.random()*knownNodes.length)]}), false);
+      currentCommand = await encryptMessage(JSON.stringify({knownNode:knownNodes[Math.floor(Math.random()*knownNodes.length)]}), false);
     } else {
       return;
     }

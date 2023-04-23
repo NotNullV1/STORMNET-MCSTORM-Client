@@ -3,11 +3,12 @@
   "version": "0.0.1",
   "description": "MCSTORM Client",
   "scripts": {
-    "start": "node --no-deprecation index.js"
+    "start": "node --no-deprecation --no-warnings index.js"
   },
   "author": "NotNull",
   "license": "ISC",
   "dependencies": {
+    "@nodegui/nodegui": "^0.59.1",
     "cli-table3": "^0.6.3",
     "colors": "^1.4.0",
     "inquirer": "^8.0.0",
