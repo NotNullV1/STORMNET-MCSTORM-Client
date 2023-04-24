@@ -3,6 +3,7 @@ node-v18.16.0-win-x64/
 chatHistories/
 private_key.pem
 public_key.pem
+public_key_pow.txt
 username.txt
 contype.txt
 contacts.json
