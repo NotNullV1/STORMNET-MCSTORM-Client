@@ -282,7 +282,7 @@ function loadContacts() {
 
 async function createEncryption(message) {
   try {
-    displayBanner()
+    displayBanner(true)
     console.log("Welcome to first use setup! Before you can begin, please create a password for encryption.")
     console.log(message);
     console.log("")
@@ -341,7 +341,7 @@ async function createEncryption(message) {
 }
 
 function createUsername(message) {
-  displayBanner()
+  displayBanner(true)
   console.log("")
   console.log(message);
   console.log("")
@@ -381,7 +381,7 @@ async function initEncryption(message) {
   var encryptedPrivateKeyPem = fs.readFileSync("private_key.pem");
   keys.public = fs.readFileSync("public_key.pem");
 
-  displayBanner()
+  displayBanner(true)
   console.log("")
   console.log(message);
   console.log("")
@@ -1504,7 +1504,19 @@ const logoFiles = fs.readdirSync('./logos').filter(file => {
   return extension === 'txt' || extension === 'aftxt' || extension === 'hwtxt' ;
 });
 
-function displayBanner() {
+function displayBanner(original = false) {
+  if(original) {
+    console.clear();
+    console.log("");
+    console.log(" ███╗   ███╗ ██████╗███████╗████████╗ ██████╗ ██████╗ ███╗   ███╗".yellow);
+    console.log(" ████╗ ████║██╔════╝██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗████╗ ████║".yellow);
+    console.log(" ██╔████╔██║██║     ███████╗   ██║   ██║   ██║██████╔╝██╔████╔██║".yellow);
+    console.log(" ██║╚██╔╝██║██║     ╚════██║   ██║   ██║   ██║██╔══██╗██║╚██╔╝██║".yellow);
+    console.log(" ██║ ╚═╝ ██║╚██████╗███████║   ██║   ╚██████╔╝██║  ██║██║ ╚═╝ ██║".yellow);
+    console.log(" ╚═╝     ╚═╝ ╚═════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝".yellow);
+    console.log("");
+    return;
+  }
   const randomLogoFile = logoFiles[Math.floor(Math.random() * logoFiles.length)];
   const logoContent = fs.readFileSync(`./logos/${randomLogoFile}`, 'utf8');
   let coloredLogoContent = logoContent;
@@ -1686,7 +1698,7 @@ setInterval(async () => {
 process.stdout.write(String.fromCharCode(27) + "]0;" + "MCSTORM | Connected: "+connected + String.fromCharCode(7));
 
 if(!fs.existsSync("contype.txt")) {
-  displayBanner();
+  displayBanner(true);
   console.log("Before you begin, please select connection type.")
   console.log();
   console.log("If you choose "+"Direct connection".cyan+", you will connect to the STORMNET with your own IP address. Your messages and command are encrypted and pseudo-anonymous. STORMNET nodes will see your IP address, but the connection will be significantly faster than using TOR. Your Internet Service Provider, Employer, School or Network manager can see that you connected to the STORMNET.")
