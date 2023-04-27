@@ -1,6 +1,19 @@
 # STORMNET-MCSTORM-Client
 STORMNET allows secure encrypted communication on a decentralized network. MCSTORM built in.
 
+Usage Windows:
+1. Download
+2. Extract
+3. Double click `run.bat`
+4. (First use) if a warning appears about running an unknown program, click `Show more` and click `Run anyways`
+
+Usage Linux: 
+1. Install nodejs and npm `sudo apt install nodejs npm` and optionally tor `sudo apt install tor`
+2. Clone repository: `git clone https://github.com/NotNullV1/STORMNET-MCSTORM-Client.git mcstorm`
+3. Go to the folder: `cd mcstorm`
+4. Install npm packages: `npm i`
+5. Run: `npm start`
+
 
 
 ## Introduction
