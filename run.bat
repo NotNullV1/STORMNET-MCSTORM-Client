@@ -1,4 +1,5 @@
 @echo off
+mode con: cols=200 lines=50
 cls
 
 REM if npm is installed
