@@ -1478,16 +1478,48 @@ function setupTOR(platform) {
   }
 }
 
+const colorMap = {
+  '%red': '\x1b[31m',
+  '%blu': '\x1b[34m',
+  '%cya': '\x1b[36m',
+  '%whi': '\x1b[37m',
+  '%yel': '\x1b[33m',
+  '%grn': '\x1b[32m',
+  '%blk': '\x1b[30m',
+  '%mag': '\x1b[35m',
+  '%clr': '\x1b[0m',
+  '%bld': '\x1b[1m',
+  '%und': '\x1b[4m',
+  '%dred': '\x1b[31;1m',
+  '%dblu': '\x1b[34;1m',
+  '%dcya': '\x1b[36;1m',
+  '%dwhi': '\x1b[37;1m',
+  '%dyel': '\x1b[33;1m',
+  '%dgrn': '\x1b[32;1m',
+  '%dmag': '\x1b[35;1m'
+};
+
+const logoFiles = fs.readdirSync('./logos').filter(file => {
+  const extension = file.split('.').pop();
+  return extension === 'txt' || extension === 'aftxt' || extension === 'hwtxt' ;
+});
+
+const randomLogoFile = logoFiles[Math.floor(Math.random() * logoFiles.length)];
+const logoContent = fs.readFileSync(`./logos/${randomLogoFile}`, 'utf8');
+
 function displayBanner() {
+  let coloredLogoContent = logoContent;
+  if (randomLogoFile.endsWith('.txt')) {
+    coloredLogoContent = Object.keys(colorMap).reduce((content, code) => {
+      const escapeSequence = colorMap[code];
+      return content.replace(new RegExp(code, 'g'), escapeSequence);
+    }, logoContent);
+  } else if (randomLogoFile.endsWith('.hwtxt') || randomLogoFile.endsWith('.aftxt')) {
+    coloredLogoContent = logoContent;
+  }
+
   console.clear();
-  console.log("");
-  console.log(" ███╗   ███╗ ██████╗███████╗████████╗ ██████╗ ██████╗ ███╗   ███╗".yellow);
-  console.log(" ████╗ ████║██╔════╝██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗████╗ ████║".yellow);
-  console.log(" ██╔████╔██║██║     ███████╗   ██║   ██║   ██║██████╔╝██╔████╔██║".yellow);
-  console.log(" ██║╚██╔╝██║██║     ╚════██║   ██║   ██║   ██║██╔══██╗██║╚██╔╝██║".yellow);
-  console.log(" ██║ ╚═╝ ██║╚██████╗███████║   ██║   ╚██████╔╝██║  ██║██║ ╚═╝ ██║".yellow);
-  console.log(" ╚═╝     ╚═╝ ╚═════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝".yellow);
-  console.log("");
+  console.log(coloredLogoContent + '\x1b[0m');
 }
 
 function removeNode(node) {
