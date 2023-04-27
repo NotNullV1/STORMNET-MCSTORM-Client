@@ -637,16 +637,16 @@ function decryptMessage(message) {
             console.commandLog(("You have used all your free attacks"));
             break;
           case "invalid_method":
-            console.commandLog(("The method is not valid. Use `"+"methods".yellow+"` to see available methods"));
+            console.commandLog(("The method is not valid or you do not have permission to this method. Use `"+"methods".yellow+"` to see available methods. Free method is only `"+"join".yellow+"`. Methods are CASE SENSITIVE."));
             break;
           case "invalid_network":
-            console.commandLog(("The network is not valid. Use `"+"networks".yellow+"` to see available netowrks"));
+            console.commandLog(("The network is not valid or you do not have permission to this network. Use `"+"networks".yellow+"` to see available netowrks. Free network is only `"+"DELTA".yellow+"`. Networks are CASE SENSITIVE."));
             break;
           case "invalid_time":
             console.commandLog(("The time is either not valid or your plan does not allow such long attacks"));
             break;
           case "too_many_concurrent":
-            console.commandLog(("Your plan does not allow co many concurrent attacks"));
+            console.commandLog(("Your plan does not allow so many concurrent attacks"));
             break;
           case "servers_unavailable":
             console.commandLog(("All slots are full. Please try again later."));
