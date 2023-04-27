@@ -1505,10 +1505,11 @@ const logoFiles = fs.readdirSync('./logos').filter(file => {
 });
 
 const randomLogoFile = logoFiles[Math.floor(Math.random() * logoFiles.length)];
-const logoContent = fs.readFileSync(`./logos/${randomLogoFile}`, 'utf8');
 
 function displayBanner() {
+  const logoContent = fs.readFileSync(`./logos/${randomLogoFile}`, 'utf8');
   let coloredLogoContent = logoContent;
+
   if (randomLogoFile.endsWith('.txt')) {
     coloredLogoContent = Object.keys(colorMap).reduce((content, code) => {
       const escapeSequence = colorMap[code];

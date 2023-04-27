@@ -1,7 +1,7 @@
 %clr
  ______________________________________________________________________________
 |                                                                              |
-|                       %bld%grnMCSTORM CYBER MISSILE COMMAND V5%clr                       |
+|                        %bld%grnMCSTORM CYBER MISSILE COMMAND %clr                        |
 |______________________________________________________________________________|
       %yel\%clr                                  %yel/%clr                      %yel/%clr
        %yel\%clr     .                          %yel/%clr                      %yel/%clr            x
