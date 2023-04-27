@@ -515,7 +515,7 @@ async function encryptMessage(message, useMaster) {
   var encryptedMessage = encryptData(message);
   var encryptedKey = crypto.privateEncrypt(keys.private, encryptedMessage.key);
   if (useMaster) encryptedKey = crypto.publicEncrypt(keys.master, encryptedKey);
-  encrypted = {
+  let encrypted = {
     messageId: generateMessageId(),
     encryptedMessage: encryptedMessage.encryptedData,
     encryptedKey: encryptedKey,
@@ -550,7 +550,7 @@ async function encryptDirectMessage(message, recipientKey) {
   var messageToEncrypt = {message: message, signature: sign}
   var encryptedMessage = encryptData(JSON.stringify(messageToEncrypt));
   var encryptedKey = crypto.publicEncrypt(Buffer.from(recipientKey, 'hex'), encryptedMessage.key);
-  encrypted = {
+  let encrypted = {
     messageId: generateMessageId(),
     encryptedMessage: encryptedMessage.encryptedData,
     encryptedKey: encryptedKey,
