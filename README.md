@@ -15,6 +15,8 @@ Usage Linux:
 5. Run: `npm start`
 
 
+![Screenshot](image/screenshot.png)
+
 
 ## Introduction
 
