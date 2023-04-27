@@ -1,7 +1,7 @@
-  _______________________________________
- / it looks like you're trying to boot a \
- \ server                                /
-  ‾‾\‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _____________________________
+ / it looks like you're trying \
+ \      to crash a server      /
+  ‾‾\‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
      \
       \
        %whi__
