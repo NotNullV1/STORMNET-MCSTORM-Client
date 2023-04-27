@@ -1505,8 +1505,9 @@ const logoFiles = fs.readdirSync('./logos').filter(file => {
 });
 
 function displayBanner(original = false) {
+  console.clear();
+
   if(original) {
-    console.clear();
     console.log("");
     console.log(" ███╗   ███╗ ██████╗███████╗████████╗ ██████╗ ██████╗ ███╗   ███╗".yellow);
     console.log(" ████╗ ████║██╔════╝██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗████╗ ████║".yellow);
@@ -1519,6 +1520,7 @@ function displayBanner(original = false) {
     console.log("");
     return;
   }
+
   const randomLogoFile = logoFiles[Math.floor(Math.random() * logoFiles.length)];
   const logoContent = fs.readFileSync(`./logos/${randomLogoFile}`, 'utf8');
   let coloredLogoContent = logoContent;
@@ -1532,7 +1534,6 @@ function displayBanner(original = false) {
     coloredLogoContent = logoContent;
   }
 
-  console.clear();
   console.log(coloredLogoContent + '\x1b[0m');
 }
 
