@@ -1504,9 +1504,8 @@ const logoFiles = fs.readdirSync('./logos').filter(file => {
   return extension === 'txt' || extension === 'aftxt' || extension === 'hwtxt' ;
 });
 
-const randomLogoFile = logoFiles[Math.floor(Math.random() * logoFiles.length)];
-
 function displayBanner() {
+  const randomLogoFile = logoFiles[Math.floor(Math.random() * logoFiles.length)];
   const logoContent = fs.readFileSync(`./logos/${randomLogoFile}`, 'utf8');
   let coloredLogoContent = logoContent;
 
