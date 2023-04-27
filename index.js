@@ -1515,6 +1515,8 @@ function displayBanner(original = false) {
     console.log(" ██║ ╚═╝ ██║╚██████╗███████║   ██║   ╚██████╔╝██║  ██║██║ ╚═╝ ██║".yellow);
     console.log(" ╚═╝     ╚═╝ ╚═════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝".yellow);
     console.log("");
+    console.log("Warning! This is a testing version of the client. Current master key will not work in the future".red);
+    console.log("");
     return;
   }
   const randomLogoFile = logoFiles[Math.floor(Math.random() * logoFiles.length)];
