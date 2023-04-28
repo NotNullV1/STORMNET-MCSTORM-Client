@@ -602,11 +602,15 @@ function decryptMessage(message) {
       var parsedMessage = JSON.parse(decryptedMessage.toString());
       if(parsedMessage.t == "i") {
         currentData = parsedMessage.d;
+        var totalC5 = 0;
+        var totalC3 = 0;
         myAttacks.forEach((a,i,o)=>{
           if(Date.now()<a.endTime) {
             currentData.n.forEach(n=>{
               if(a.servers.includes(n.s)) {
-                if (currentWindow == "console") console.commandLog("CPS: "+colorizeCPS(n.c5)+" | Responses: "+colorizeCPS(n.c3));
+                totalC5 += n.c5;
+                totalC3 += n.c3;
+                
               }
             })
             
@@ -615,6 +619,7 @@ function decryptMessage(message) {
             o.splice(i,1);
           }
         })
+        if (currentWindow == "console") console.commandLog("CPS: "+colorizeCPS(totalC5)+" | Responses: "+colorizeCPS(totalC3));
       }
       if(parsedMessage.t == "attack") {
         var data = parsedMessage.d
