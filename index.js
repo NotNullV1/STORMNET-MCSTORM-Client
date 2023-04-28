@@ -619,7 +619,7 @@ function decryptMessage(message) {
             o.splice(i,1);
           }
         })
-        if (currentWindow == "console") console.commandLog("CPS: "+colorizeCPS(totalC5)+" | Responses: "+colorizeCPS(totalC3));
+        if (currentWindow == "console"&&myAttacks.length>0) console.commandLog("CPS: "+colorizeCPS(totalC5)+" | Responses: "+colorizeCPS(totalC3));
       }
       if(parsedMessage.t == "attack") {
         var data = parsedMessage.d
