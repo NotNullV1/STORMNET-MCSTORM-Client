@@ -18,6 +18,8 @@ Usage Linux:
 ![Screenshot](image/screenshot.png)
 
 
+### TL;DR: If you use any website based stresser - you are most probably getting logged no matter the stressor's claims of "no log policy". If you see a stressor website using cloudflare or something similar - DO NOT USE, EXIT IMMEDIATELLY!!!
+
 ## Introduction
 
 After the FBI's big seizure of stressors in December 2022, most providers just moved their services to a new domain name and continue their operations as usual, using the same unsecured and extremely dangerous techniques both to the providers as well as their clients. Since then, there have been new reports of stressor websites being seized and their users arrested.
@@ -40,9 +42,21 @@ Unencrypted communications are particularly vulnerable to Man-in-the-Middle (MIT
 
 In Cloudflare's Flexible SSL mode, data is only encrypted between the client and Cloudflare's servers. The communication between Cloudflare and the origin server remains unencrypted, leaving the transmitted data exposed to logging and manipulation. This lack of end-to-end encryption can create security vulnerabilities and undermine the privacy of users. Not only can the stressor itself view the unencrypted data transmitted between the client and the origin server, but other intermediaries, such as the stressors webserver's hosting or the FBI, can also potentially see and log all activity directly linked to IP addresses leading to breaches in privacy and potential arrests of the stressor's users.
 
+![Cloudflare flexible encryption](image/cloudflare-flexible.png)
+
+In Cloudflare's Full SSL modes, the data is encrypted between the client and Cloudflare, as well as between Cloudflare and the origin server. However, since Cloudflare acts as a reverse proxy, it has the ability to decrypt and inspect the data passing through its servers, therefore the data in not really encrypted end-to-end as Cloudflare claims. This means that, although the data is encrypted during transit, it is still being logged by Cloudflare itself. True end-to-end encryption would require that only the intended sender and recipient of the data have the ability to decrypt and read the information, with no intermediary having access to the data in its decrypted form.
+
+![Cloudflare full encryption](image/cloudflare-full.png)
+
+Achieving true end-to-end encryption with a reverse proxy is not possible because the proxy needs to access some information about the request to route it properly. As with Cloudflare, other reverse proxy and L7 DDoS protection services can provide encryption between the client and the reverse proxy, as well as between the reverse proxy and the origin server, however, no matter the provider, the requests **CAN BE LOGGED AND THEY ARE BEING LOGGED**.
+
+![WAF proxy](image/waf-proxy.png)
+
+**EVERY TIME YOU SEE ANYTHING LIKE "CHECKING YOUR BROWSER" - YOUR INFO IS BEING COLLECTED AND EVERY REQUEST YOU SEND ON THAT WEBSITE IS LOGGED - DO NOT USE, RUN AWAY**
+
 Unencrypted communication between the stressor's web server and its attack servers can also be easily intercepted by unauthorized parties,  hackers such as the FBI, or other malicious actors. This can lead to unauthorized access to sensitive information, including user data, personal data, and confidential business data.
 
-Apart from unencrypted communication, there are other security issues that can arise when interacting with websites in general. These concerns include the logging of IP addresses, browser information, and user activity by Cloudflare servers and the websites themselves. Stressor websites almost always claim they remove logs every day, but this is most of the time not true. If the website stores this data in an insecure manner or does not employ proper security measures, which it usually does not, it can become vulnerable to attacks such as SQL injection or seizure-of-servers attacks by the FBI.
+Apart from unencrypted communication, there are other security issues that can arise when interacting with websites in general. These concerns include the logging of IP addresses, browser information, and user activity by Cloudflare servers and the websites themselves. Stressor websites almost always claim they remove logs every day, but this is most of the time not true. If the website stores this data in an insecure manner or does not employ proper security measures, which it usually does not, it can become vulnerable to attacks such as SQL injection or seizure-of-servers attacks by the FBI. This is why MCSTORM does not even make logs at all.
 
 
 
