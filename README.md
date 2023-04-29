@@ -15,7 +15,7 @@ Usage Linux:
 5. Run: `npm start`
 
 
-![Screenshot](image/screenshot.png)
+![Screenshot](image/screenshot2.png)
 
 
 ### TL;DR: If you use any website based stresser - you are most probably getting logged no matter the stressor's claims of "no log policy". If you see a stressor website using cloudflare or something similar - DO NOT USE, EXIT IMMEDIATELLY!!!
